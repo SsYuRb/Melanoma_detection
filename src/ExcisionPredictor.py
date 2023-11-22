@@ -42,16 +42,16 @@ class ExcisionPredictor(object):
         return pix_in_mm
 
     def resize(self, image, mask):
-        init_width = mask.shape[0]
-        scale_factor = init_width / self.work_width
-        if scale_factor > 1:
-            mask = imutils.resize(mask, width=self.work_width)
-            image = imutils.resize(image, width=self.work_width)
-            self.pix_in_mm = self.pix_in_mm / scale_factor
-            pad = self.work_width  # // 2
-            image = np.pad(image, ((pad, pad), (pad, pad), (0, 0)))
-            mask = np.pad(mask, ((pad, pad), (pad, pad), (0, 0)))
-
+        if self.work_width and self.work_width > 0:
+            init_width = mask.shape[0]
+            scale_factor = init_width / self.work_width
+            if scale_factor > 1:
+                mask = imutils.resize(mask, width=self.work_width)
+                image = imutils.resize(image, width=self.work_width)
+                self.pix_in_mm = self.pix_in_mm / scale_factor
+                pad = self.work_width  # // 2
+                image = np.pad(image, ((pad, pad), (pad, pad), (0, 0)))
+                mask = np.pad(mask, ((pad, pad), (pad, pad), (0, 0)))
         return image, mask
 
     def dilate(self, mask):
@@ -73,6 +73,6 @@ class ExcisionPredictor(object):
         self.pix_in_mm = self.get_scale(image)
         image, mask = self.resize(image, mask)
         dilated_mask = self.dilate(mask)
-        return dilated_mask
+        return image, dilated_mask
 
 # image = cv2.imread(image_path)
