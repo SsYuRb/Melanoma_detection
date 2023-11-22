@@ -13,7 +13,7 @@ class ExcisionPredictorTestCase(unittest.TestCase):
         contour = get_contour(dilated_mask)
         draw_mask_contour(image, dilated_mask)
         self.assertEqual(contour[0].shape[0], 926)
-        cv2.imwrite("test_base.png", image)
+        #cv2.imwrite("test_base.png", image)
 
     def test_no_resize(self):
         image = cv2.imread("data/qr.jpg")
