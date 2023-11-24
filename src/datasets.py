@@ -10,12 +10,12 @@ import os.path
 class PH2Dataset(Dataset):
     url = 'http://fmb.images.gan4x4.ru/msu/usufov/PH2Dataset.zip'
 
-    def __init__(self, root, transforms=None, mask_transforms = None, download = True):
+    def __init__(self, root, transforms=None, mask_transforms=None, download=True):
         if download:
             download_and_extract_archive(self.url, root)
             root += "/PH2Dataset/PH2 Dataset images"
         print(f"{root}/*/")
-        self.dirs = sorted(glob(f"{root}/*/", recursive = False))
+        self.dirs = sorted(glob(f"{root}/*/", recursive=False))
         self.transforms = transforms
         self.mask_transforms = mask_transforms
 
@@ -46,7 +46,7 @@ class ISICDataset(Dataset):
                     'labels': 'https://isic-challenge-data.s3.amazonaws.com/2016/ISBI2016_ISIC_Part3B_Training_GroundTruth.csv',
                     'images': 'https://isic-challenge-data.s3.amazonaws.com/2016/ISBI2016_ISIC_Part3_Training_Data.zip',
                     'masks': 'https://isic-challenge-data.s3.amazonaws.com/2016/ISBI2016_ISIC_Part1_Training_GroundTruth.zip'
-                    },
+                },
                 'test': {
                     'labels': 'https://isic-challenge-data.s3.amazonaws.com/2016/ISBI2016_ISIC_Part3_Test_GroundTruth.csv',
                     'images': 'https://isic-challenge-data.s3.amazonaws.com/2016/ISBI2016_ISIC_Part1_Test_Data.zip',
@@ -58,7 +58,7 @@ class ISICDataset(Dataset):
         self.download(train, root)
 
         self.validate()
-        self.labels = self.labels.iloc[:, 1:].values
+        self.labels = self.labels.iloc[:, 1:].values.flatten()
         self.transforms = transforms
         self.mask_transforms = mask_transforms
 
@@ -76,17 +76,18 @@ class ISICDataset(Dataset):
         urls = self.parts[2016][key]
 
         # Labels
-        download_url(self.urls['labels'], root)
-        self.labels = pd.read_csv(os.path.basename(urls['labels']), header=None)
+        download_url(urls['labels'], root)
+        tmp = root + os.sep + os.path.basename(urls['labels'])
+        self.labels = pd.read_csv(tmp, header=None)
 
         # Images
-        download_and_extract_archive(self.urls['images'], root)
+        download_and_extract_archive(urls['images'], root)
         folder = os.path.splitext(os.path.basename(urls['images']))[0]
         self.images = sorted(glob(f"{root}/{folder}/*.jpg", recursive=False))
 
         # Masks
         folder = os.path.splitext(os.path.basename(urls['masks']))[0]
-        download_and_extract_archive(self.urls['masks'], root)
+        download_and_extract_archive(urls['masks'], root)
         self.masks = sorted(glob(f"{root}/{folder}/*.png", recursive=False))
 
     def __len__(self):
